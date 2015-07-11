@@ -1,0 +1,13 @@
+# Node metadata
+node_modules
+
+# SASS metadata
+*.sass-cache
+
+# Bower directory
+bower_components
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class

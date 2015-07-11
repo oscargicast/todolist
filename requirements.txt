@@ -1,0 +1,4 @@
+backports.ssl-match-hostname==3.4.0.2
+certifi==2015.04.28
+pymongo==3.0.3
+tornado==4.2
