@@ -60,7 +60,7 @@ routers = [
     (r"/", MainHandler),
     (r"/task/", TaskHandler),
     (r"/task/(?P<task_id>.+)/", TaskHandler),
-    (r"/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
+    (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
 ]
 
 application = tornado.web.Application(routers, debug=True)
@@ -69,6 +69,10 @@ if __name__ == "__main__":
     print "Runserver..."
     parse_command_line()
     application.connection = pymongo.MongoClient()
-    application.settings["template_path"] = "templates"
+    settings = {
+        "template_path": "templates",
+        "static_path": "static",
+    }
+    application.settings.update(settings)
     application.listen(8000)
     tornado.ioloop.IOLoop.current().start()
