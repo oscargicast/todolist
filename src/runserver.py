@@ -1,78 +1,35 @@
+import os.path
 import pymongo
-import tornado.escape
 import tornado.ioloop
 import tornado.web
 
-from bson.json_util import dumps
-from bson import ObjectId
-
-from tornado.options import define, parse_command_line
+from tornado.options import define, options
+from routers import urlpatterns
 
 define("debug", default=True, help="run in debug mode", type=bool)
 define("port", default=8000, help="run on the given port", type=int)
 
 
-class MainHandler(tornado.web.RequestHandler):
+class Application(tornado.web.Application):
 
-    def get(self):
-        self.render("index.html")
-
-
-class TaskHandler(tornado.web.RequestHandler):
-
-    @property
-    def db(self):
-        return self.application.connection['todo']
-
-    def get(self):
-        tasks = self.db.task.find()
-        self.write(dumps({"Tasks": tasks}))
-
-    def post(self):
-        title = self.get_argument("Title")
-        if title:
-            task = {
-                "Title": title,
-                "Done": False,
-            }
-            self.db.task.insert(task)
-
-    def put(self, task_id):
-        try:
-            data = tornado.escape.json_decode(self.request.body)
-        except:
-            data = {}
-        task_id = ObjectId(task_id)
-        self.db.task.update({"_id": task_id}, {"$set": {
-            "Done": data.get("Done"),
-        }})
-
-    def delete(self, task_id):
-        try:
-            data = tornado.escape.json_decode(self.request.body)
-        except:
-            data = {}
-        task_id = ObjectId(task_id)
-        self.db.task.remove({"_id": task_id})
+    def __init__(self):
+        connection = pymongo.MongoClient()
+        self.db = connection["todo"]
+        settings = dict(
+            template_path=os.path.join(os.path.dirname(__file__), "templates"),
+            static_path=os.path.join(os.path.dirname(__file__), "static"),
+            debug=True,
+        )
+        tornado.web.Application.__init__(self, urlpatterns, **settings)
 
 
-routers = [
-    (r"/", MainHandler),
-    (r"/task/", TaskHandler),
-    (r"/task/(?P<task_id>.+)/", TaskHandler),
-    (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
-]
+def main():
+    print("Running web server...")
+    tornado.options.parse_command_line()
+    app = Application()
+    app.listen(options.port)
+    tornado.ioloop.IOLoop.current().start()
 
-application = tornado.web.Application(routers, debug=True)
 
 if __name__ == "__main__":
-    print "Runserver..."
-    parse_command_line()
-    application.connection = pymongo.MongoClient()
-    settings = {
-        "template_path": "templates",
-        "static_path": "static",
-    }
-    application.settings.update(settings)
-    application.listen(8000)
-    tornado.ioloop.IOLoop.current().start()
+    main()
