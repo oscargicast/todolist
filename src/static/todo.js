@@ -1,4 +1,9 @@
-function TaskCtrl($scope, $http) {
+var app = angular.module('myapp', []).config(function($interpolateProvider) {
+  $interpolateProvider.startSymbol('{[{');
+  $interpolateProvider.endSymbol('}]}');
+});
+
+app.controller('TaskCtrl', function($scope, $http) {
   $scope.tasks = [];
   $scope.working = false;
 
@@ -61,4 +66,4 @@ function TaskCtrl($scope, $http) {
   refresh().then(function() {
     $scope.working = false;
   });
-}
+});

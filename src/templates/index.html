@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app>
+<html ng-app='myapp'>
 
 <head>
   <title>TODO</title>
@@ -18,7 +18,7 @@
     <ul class='grey rounded-box'>
       <li ng-repeat='t in tasks' ng-class='{done: t.Done}'>
         <div ng-click='toggleDone(t)'>
-          <span class='checkbox'></span>{{t.Title}}
+          <span class='checkbox'></span>{[{t.Title}]}
         </div>
         <i class="fa fa-trash trash" ng-click="removeTodo(t)"></i>
       </li>

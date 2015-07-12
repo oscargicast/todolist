@@ -12,6 +12,12 @@ define("debug", default=True, help="run in debug mode", type=bool)
 define("port", default=8000, help="run on the given port", type=int)
 
 
+class MainHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        self.render("index.html")
+
+
 class TaskHandler(tornado.web.RequestHandler):
 
     @property
@@ -51,6 +57,7 @@ class TaskHandler(tornado.web.RequestHandler):
 
 
 routers = [
+    (r"/", MainHandler),
     (r"/task/", TaskHandler),
     (r"/task/(?P<task_id>.+)/", TaskHandler),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
@@ -62,5 +69,6 @@ if __name__ == "__main__":
     print "Runserver..."
     parse_command_line()
     application.connection = pymongo.MongoClient()
+    application.settings["template_path"] = "templates"
     application.listen(8000)
     tornado.ioloop.IOLoop.current().start()
