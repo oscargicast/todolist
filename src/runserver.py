@@ -1,19 +1,30 @@
 import tornado.ioloop
 import tornado.web
+import pymongo
+
+from bson.json_util import dumps
 
 
-class MainHandler(tornado.web.RequestHandler):
+class TaskHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        return self.application.connection['todo']
 
     def get(self):
-        self.write("Hello")
+        tasks = self.db.task.find()
+        self.write(dumps({"Tasks": tasks}))
 
 
-application = tornado.web.Application([
-    (r"/hello", MainHandler),
+routers = [
+    (r"/task/", TaskHandler),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
-], debug=True)
+]
+
+application = tornado.web.Application(routers, debug=True)
 
 if __name__ == "__main__":
     print "Runserver..."
+    application.connection = pymongo.MongoClient()
     application.listen(8000)
     tornado.ioloop.IOLoop.current().start()
