@@ -4,6 +4,8 @@ import tornado.ioloop
 import tornado.web
 
 from bson.json_util import dumps
+from bson import ObjectId
+
 from tornado.options import define, parse_command_line
 
 define("debug", default=True, help="run in debug mode", type=bool)
@@ -21,11 +23,7 @@ class TaskHandler(tornado.web.RequestHandler):
         self.write(dumps({"Tasks": tasks}))
 
     def post(self):
-        try:
-            data = tornado.escape.json_decode(self.request.body)
-        except:
-            data = {}
-        title = data.get("Title")
+        title = self.get_argument("Title")
         if title:
             task = {
                 "Title": title,
@@ -34,9 +32,20 @@ class TaskHandler(tornado.web.RequestHandler):
             self.db.task.insert(task)
         self.write("Hello, world")
 
+    def put(self, task_id):
+        try:
+            data = tornado.escape.json_decode(self.request.body)
+        except:
+            data = {}
+        task_id = ObjectId(task_id)
+        self.db.task.update({"_id": task_id}, {"$set": {
+            "Done": data.get("Done"),
+        }})
+
 
 routers = [
     (r"/task/", TaskHandler),
+    (r"/task/(?P<task_id>.+)/", TaskHandler),
     (r"/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
 ]
 

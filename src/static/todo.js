@@ -23,8 +23,13 @@ function TaskCtrl($scope, $http) {
 
   $scope.addTodo = function() {
     $scope.working = true;
-    $http.post('/task/', {
-      Title: $scope.todoText
+    $http({
+      url: '/task/',
+      method: 'POST',
+      data: "Title=" + $scope.todoText,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     }).
     error(logError).
     success(function() {
@@ -37,11 +42,11 @@ function TaskCtrl($scope, $http) {
 
   $scope.toggleDone = function(task) {
     data = {
-      ID: task.ID,
+      ID: task._id["$oid"],
       Title: task.Title,
       Done: !task.Done
     }
-    $http.put('/task/' + task.ID, data).
+    $http.put('/task/' + task._id["$oid"] + '/', data).
     error(logError).
     success(function() {
       task.Done = !task.Done
