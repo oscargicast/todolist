@@ -17,6 +17,7 @@ class TaskHandler(tornado.web.RequestHandler):
         self.db = self.application.db['todo']
         self.task = self.db.task
 
+    @tornado.web.addslash
     def get(self):
         tasks = self.task.find()
         self.write(dumps({"Tasks": tasks}))
