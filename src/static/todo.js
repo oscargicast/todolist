@@ -1,9 +1,3 @@
-/*
- Copyright 2011 The Go Authors.  All rights reserved.
- Use of this source code is governed by a BSD-style
- license that can be found in the LICENSE file.
-*/
-
 function TaskCtrl($scope, $http) {
   $scope.tasks = [];
   $scope.working = false;
@@ -37,6 +31,17 @@ function TaskCtrl($scope, $http) {
         $scope.working = false;
         $scope.todoText = '';
       })
+    });
+  };
+
+  $scope.removeTodo = function(task) {
+    data = {
+      ID: task._id["$oid"],
+    }
+    $http.delete('/task/' + task._id["$oid"] + '/').
+    error(logError).
+    success(function() {
+      refresh()
     });
   };
 

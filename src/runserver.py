@@ -30,7 +30,6 @@ class TaskHandler(tornado.web.RequestHandler):
                 "Done": False,
             }
             self.db.task.insert(task)
-        self.write("Hello, world")
 
     def put(self, task_id):
         try:
@@ -41,6 +40,14 @@ class TaskHandler(tornado.web.RequestHandler):
         self.db.task.update({"_id": task_id}, {"$set": {
             "Done": data.get("Done"),
         }})
+
+    def delete(self, task_id):
+        try:
+            data = tornado.escape.json_decode(self.request.body)
+        except:
+            data = {}
+        task_id = ObjectId(task_id)
+        self.db.task.remove({"_id": task_id})
 
 
 routers = [
